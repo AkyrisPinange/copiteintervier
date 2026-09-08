@@ -15,8 +15,7 @@ unsafe extern "system" fn low_level_mouse_proc(
     wparam: windows::Win32::Foundation::WPARAM,
     lparam: windows::Win32::Foundation::LPARAM,
 ) -> windows::Win32::Foundation::LRESULT {
-    use windows::Win32::UI::Input::KeyboardAndMouse::{MSLLHOOKSTRUCT, WM_XBUTTONDOWN};
-    use windows::Win32::UI::WindowsAndMessaging::CallNextHookEx;
+    use windows::Win32::UI::WindowsAndMessaging::{CallNextHookEx, MSLLHOOKSTRUCT, WM_XBUTTONDOWN};
     if code >= 0 && wparam.0 == WM_XBUTTONDOWN as usize {
         let info = &*(lparam.0 as *const MSLLHOOKSTRUCT);
         let button = ((info.mouseData >> 16) & 0xffff) as u32;
@@ -77,24 +76,25 @@ pub async fn capture_screen() -> Result<String, String> {
                 return Err("No capturable display was found".to_string());
             }
 
-            let screen_dc = GetDC(HWND(0));
-            if screen_dc.0 == 0 {
+            let null_hwnd = HWND(std::ptr::null_mut());
+            let screen_dc = GetDC(null_hwnd);
+            if screen_dc.0.is_null() {
                 return Err("Failed to acquire screen device context".to_string());
             }
             let memory_dc = CreateCompatibleDC(screen_dc);
             let bitmap = CreateCompatibleBitmap(screen_dc, width, height);
-            if memory_dc.0 == 0 || bitmap.0 == 0 {
-                if bitmap.0 != 0 {
+            if memory_dc.0.is_null() || bitmap.0.is_null() {
+                if !bitmap.0.is_null() {
                     let _ = DeleteObject(bitmap);
                 }
-                if memory_dc.0 != 0 {
+                if !memory_dc.0.is_null() {
                     let _ = DeleteDC(memory_dc);
                 }
-                ReleaseDC(HWND(0), screen_dc);
+                ReleaseDC(null_hwnd, screen_dc);
                 return Err("Failed to allocate screenshot buffer".to_string());
             }
             let previous = SelectObject(memory_dc, bitmap);
-            let copied = BitBlt(memory_dc, 0, 0, width, height, screen_dc, x, y, SRCCOPY).as_bool();
+            let copied = BitBlt(memory_dc, 0, 0, width, height, screen_dc, x, y, SRCCOPY).is_ok();
             let mut info = BITMAPINFO {
                 bmiHeader: BITMAPINFOHEADER {
                     biSize: std::mem::size_of::<BITMAPINFOHEADER>() as u32,
@@ -124,7 +124,7 @@ pub async fn capture_screen() -> Result<String, String> {
             SelectObject(memory_dc, previous);
             let _ = DeleteObject(bitmap);
             let _ = DeleteDC(memory_dc);
-            ReleaseDC(HWND(0), screen_dc);
+            ReleaseDC(null_hwnd, screen_dc);
             if read == 0 {
                 return Err("Failed to read screenshot pixels".to_string());
             }
