@@ -54,6 +54,7 @@ impl ContextBuilder {
         messages.push(LLMMessage {
             role: "system".to_string(),
             content: system_prompt.to_string(),
+            images: Vec::new(),
         });
 
         // 2. User message — ONLY data sections, NO hardcoded instructions.
@@ -101,6 +102,7 @@ impl ContextBuilder {
         messages.push(LLMMessage {
             role: "user".to_string(),
             content: user_content,
+            images: Vec::new(),
         });
 
         messages

@@ -205,6 +205,29 @@ export async function generateAssist(mode: string, customQuestion?: string): Pro
   });
 }
 
+export async function captureScreen(): Promise<string> {
+  return invoke<string>("capture_screen");
+}
+
+export async function analyzeScreenshotBatch(
+  images: Array<{ media_type: string; data: string }>,
+  transcriptSegments: string,
+  visionProvider: string,
+  visionModel: string,
+): Promise<void> {
+  return invoke("analyze_screenshot_batch", {
+    images: JSON.stringify(images),
+    transcript: transcriptSegments,
+    visionProvider,
+    visionModel,
+  });
+}
+
+export async function listVisionModels(provider: string): Promise<ModelInfo[]> {
+  const result = await invoke<string>("list_vision_models", { provider });
+  return JSON.parse(result);
+}
+
 export async function cancelGeneration(): Promise<void> {
   return invoke("cancel_generation");
 }

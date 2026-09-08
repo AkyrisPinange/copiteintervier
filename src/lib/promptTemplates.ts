@@ -61,6 +61,8 @@ const DEFAULT_PROMPTS: Record<IntelligenceMode, string> = {
     '- "segment_id": string or null - The transcript segment ID closest to this moment, if identifiable\n' +
     '- "note": string - A brief description of why this moment is important (max 100 chars)\n\n' +
     "Limit to the 10 most important moments.",
+  VisionAnalysis:
+    "Analyze the provided interview screenshots and explain the relevant technical details clearly and concisely.",
 };
 
 export function getSystemPromptForMode(mode: IntelligenceMode): string {

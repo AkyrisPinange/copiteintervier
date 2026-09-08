@@ -7,8 +7,12 @@ import { useMeetingStore } from "../stores/meetingStore";
 import { useAIActionsStore } from "../stores/aiActionsStore";
 import { generateAssist } from "../lib/ipc";
 import { showLauncherWindow, showOverlayWindow } from "../lib/windows";
+import { useConfigStore } from "../stores/configStore";
+import { emit } from "@tauri-apps/api/event";
 
 export function useGlobalShortcut() {
+  const captureScreenshotKey = useConfigStore((s) => s.hotkeys.capture_screenshot);
+  const sendScreenshotKey = useConfigStore((s) => s.hotkeys.send_screenshot_batch);
   // Global shortcuts (work even when window is not focused)
   useEffect(() => {
     const shortcuts: string[] = [];
@@ -54,6 +58,18 @@ export function useGlobalShortcut() {
             }
           },
         },
+        {
+          key: captureScreenshotKey,
+          handler: (event) => {
+            if (event.state === "Pressed") emit("nexq:capture_screenshot").catch(() => {});
+          },
+        },
+        {
+          key: sendScreenshotKey,
+          handler: (event) => {
+            if (event.state === "Pressed") emit("nexq:send_screenshot_batch").catch(() => {});
+          },
+        },
       ];
 
       for (const { key, handler } of defs) {
@@ -74,7 +90,7 @@ export function useGlobalShortcut() {
         unregister(s).catch(() => {});
       });
     };
-  }, []);
+  }, [captureScreenshotKey, sendScreenshotKey]);
 
   // Window-level shortcuts (work when window is active/focused)
   useEffect(() => {

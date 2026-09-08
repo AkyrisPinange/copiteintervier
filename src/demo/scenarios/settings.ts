@@ -68,6 +68,8 @@ function populate(): void {
       mode_followup: '3',
       mode_recap: '4',
       mode_ask: '5',
+      capture_screenshot: 'Mouse4',
+      send_screenshot_batch: 'Ctrl+Enter',
     },
   });
 }

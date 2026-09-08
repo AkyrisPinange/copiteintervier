@@ -30,6 +30,7 @@ const MODE_COLORS: Record<
   MeetingSummary: { badge: "bg-primary/20 text-primary", dot: "bg-primary" },
   ActionItemsExtraction: { badge: "bg-warning/20 text-warning", dot: "bg-warning" },
   BookmarkSuggestions: { badge: "bg-info/20 text-info", dot: "bg-info" },
+  VisionAnalysis: { badge: "bg-fuchsia-500/20 text-fuchsia-300", dot: "bg-fuchsia-400" },
 };
 
 // -- Context source badges ---------------------------------------------------

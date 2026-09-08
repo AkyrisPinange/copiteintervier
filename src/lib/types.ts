@@ -192,7 +192,8 @@ export type IntelligenceMode =
   | "AskQuestion"
   | "MeetingSummary"
   | "ActionItemsExtraction"
-  | "BookmarkSuggestions";
+  | "BookmarkSuggestions"
+  | "VisionAnalysis";
 
 export interface StreamSource {
   title: string;
@@ -272,6 +273,11 @@ export interface LLMProviderConfig {
   base_url: string;
   requires_api_key: boolean;
   is_local: boolean;
+}
+
+export interface VisionImage {
+  media_type: string;
+  data: string;
 }
 
 // == DEEPGRAM CONFIG ==
@@ -471,6 +477,8 @@ export interface HotkeyConfig {
   mode_followup: string;
   mode_recap: string;
   mode_ask: string;
+  capture_screenshot: string;
+  send_screenshot_batch: string;
 }
 
 // == APP STATE TYPES ==

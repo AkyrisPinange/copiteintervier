@@ -19,6 +19,7 @@ import { BookmarkPanel } from "./BookmarkPanel";
 import { useBookmarkHotkey } from "../hooks/useBookmarkHotkey";
 import { useMeetingShortcuts } from "../hooks/useMeetingShortcuts";
 import { useConfigStore } from "../stores/configStore";
+import { useScreenshotStore } from "../stores/screenshotStore";
 import { useSpeakerDetection } from "../hooks/useSpeakerDetection";
 import { useTopicDetection } from "../hooks/useTopicDetection";
 import { useTranslation } from "../hooks/useTranslation";
@@ -42,6 +43,10 @@ import {
   PanelLeftClose,
   PanelRightClose,
   Eye,
+  Camera,
+  Send,
+  Trash2,
+  X,
 } from "lucide-react";
 import { formatDuration } from "../lib/utils";
 
@@ -84,6 +89,13 @@ export function OverlayView() {
   const provider = useTranslationStore((s) => s.provider);
   const batchProgress = useTranslationStore((s) => s.batchProgress);
   const isBatchTranslating = batchProgress !== null;
+  const screenshots = useScreenshotStore((s) => s.images);
+  const screenshotError = useScreenshotStore((s) => s.error);
+  const isCapturingScreenshot = useScreenshotStore((s) => s.isCapturing);
+  const isSendingScreenshots = useScreenshotStore((s) => s.isSending);
+  const removeScreenshot = useScreenshotStore((s) => s.remove);
+  const clearScreenshots = useScreenshotStore((s) => s.clear);
+  const sendScreenshots = useScreenshotStore((s) => s.send);
 
   // Bookmark hotkey (Ctrl+B) — also returns addBookmarkAtNow for shortcut hook
   const addBookmarkAtNow = useBookmarkHotkey();
@@ -285,6 +297,30 @@ export function OverlayView() {
           </button>
         </div>
       </div>
+
+      {screenshots.length > 0 && (
+        <div className="flex shrink-0 items-center gap-2 border-b border-border/20 bg-black/10 px-3 py-2">
+          <Camera className="h-3.5 w-3.5 shrink-0 text-info" aria-hidden="true" />
+          <span className="text-meta font-semibold text-foreground/80">{screenshots.length} screenshot{screenshots.length === 1 ? "" : "s"}</span>
+          <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto">
+            {screenshots.map((image, index) => (
+              <div key={image.id} className="group relative h-10 w-16 shrink-0 overflow-hidden rounded border border-border/40 bg-background" title={`Screenshot ${index + 1}`}>
+                <img src={`data:image/png;base64,${image.data}`} alt={`Screenshot ${index + 1}`} className="h-full w-full object-cover" />
+                <button onClick={() => removeScreenshot(image.id)} className="absolute right-0.5 top-0.5 rounded bg-black/70 p-0.5 text-white opacity-0 transition-opacity group-hover:opacity-100" aria-label={`Remove screenshot ${index + 1}`} title="Remove screenshot">
+                  <X className="h-2.5 w-2.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+          <button onClick={clearScreenshots} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground" aria-label="Clear screenshots" title="Clear screenshots">
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+          <button onClick={() => sendScreenshots().catch((e) => showToast(e instanceof Error ? e.message : "Could not send screenshots", "error"))} disabled={isSendingScreenshots || isCapturingScreenshot} className="flex items-center gap-1 rounded-md bg-primary/15 px-2 py-1 text-meta font-semibold text-primary hover:bg-primary/25 disabled:opacity-50" title="Send screenshot batch to vision model">
+            <Send className="h-3 w-3" /> {isSendingScreenshots ? "Sending..." : "Send"}
+          </button>
+        </div>
+      )}
+      {screenshotError && <div className="shrink-0 border-b border-destructive/20 bg-destructive/10 px-3 py-1 text-meta text-destructive">{screenshotError}</div>}
 
       {/* ═══ MAIN ═══ */}
       <div className="relative flex-1 min-h-0">

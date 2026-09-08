@@ -48,6 +48,14 @@ pub struct CompletionStats {
 pub struct LLMMessage {
     pub role: String,
     pub content: String,
+    #[serde(default)]
+    pub images: Vec<LLMImage>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LLMImage {
+    pub media_type: String,
+    pub data: String,
 }
 
 #[derive(Debug, Error)]

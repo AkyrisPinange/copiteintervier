@@ -112,6 +112,8 @@ export function getModeLabel(mode: IntelligenceMode): string {
       return "Actions";
     case "BookmarkSuggestions":
       return "Bookmarks";
+    case "VisionAnalysis":
+      return "Vision";
   }
 }
 
@@ -135,6 +137,8 @@ export function getModeShortcut(mode: IntelligenceMode): string {
     case "ActionItemsExtraction":
       return "";
     case "BookmarkSuggestions":
+      return "";
+    case "VisionAnalysis":
       return "";
   }
 }

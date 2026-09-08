@@ -52,6 +52,7 @@ use commands::translation_model_commands;
 use commands::tray_commands;
 // == MODULE COMMANDS: updater ==
 use commands::updater_commands;
+use commands::screen_commands;
 
 /// Enable live blur-behind on a window via the undocumented `SetWindowCompositionAttribute`
 /// (user32). `DwmEnableBlurBehindWindow` (used automatically by tao for `transparent: true`)
@@ -293,6 +294,7 @@ pub fn run() {
 
             app_state.llm = Some(Arc::new(Mutex::new(llm_router)));
             log::info!("LLM router initialized");
+            screen_commands::start_mouse_hook(app.handle().clone());
 
             // -- Initialize IntelligenceEngine --
             let intel_engine = intelligence::IntelligenceEngine::new();
@@ -541,6 +543,10 @@ pub fn run() {
             intelligence_commands::get_action_configs,
             intelligence_commands::set_active_scenario,
             intelligence_commands::update_speaker_context,
+            // == COMMANDS: screen ==
+            screen_commands::capture_screen,
+            screen_commands::analyze_screenshot_batch,
+            screen_commands::list_vision_models,
             // == COMMANDS: context ==
             context_commands::load_context_file,
             context_commands::remove_context_file,

@@ -4,6 +4,7 @@ import { useConfigStore } from "../stores/configStore";
 import { GeneralSettings } from "./GeneralSettings";
 import { AboutSettings } from "./AboutSettings";
 import { LLMSettings } from "./LLMSettings";
+import { VisionSettings } from "./VisionSettings";
 import { STTSettings } from "./STTSettings";
 import { HotkeySettings } from "./HotkeySettings";
 import { MeetingAudioSettings } from "./MeetingAudioSettings";
@@ -25,13 +26,14 @@ import {
   Volume2,
   BarChart2,
   Globe,
+  Camera,
 } from "lucide-react";
 import { ContextStrategySettings } from "./ContextStrategySettings";
 import { AIActionsSettings } from "./AIActionsSettings";
 import { TranslationSettings } from "./TranslationSettings";
 import { Sparkles } from "lucide-react";
 
-type SettingsTab = "meeting_audio" | "llm" | "stt" | "translation" | "ai_actions" | "context_strategy" | "scenarios" | "noise_presets" | "confidence" | "hotkeys" | "general" | "about";
+type SettingsTab = "meeting_audio" | "llm" | "vision" | "stt" | "translation" | "ai_actions" | "context_strategy" | "scenarios" | "noise_presets" | "confidence" | "hotkeys" | "general" | "about";
 
 // ── Tab groups for sidebar (contextually organized, importance-ordered) ──
 interface TabItem {
@@ -56,6 +58,7 @@ const TAB_GROUPS: TabGroup[] = [
     label: "Providers",
     items: [
       { id: "llm", label: "LLM Providers", icon: <Brain className="h-4 w-4" /> },
+      { id: "vision", label: "Vision", icon: <Camera className="h-4 w-4" /> },
       { id: "stt", label: "STT Providers", icon: <Mic className="h-4 w-4" /> },
       { id: "translation", label: "Translation", icon: <Globe className="h-4 w-4" /> },
     ],
@@ -147,6 +150,8 @@ export function SettingsOverlay({ isModal = false }: SettingsOverlayProps) {
         return <MeetingAudioSettings />;
       case "llm":
         return <LLMSettings />;
+      case "vision":
+        return <VisionSettings />;
       case "ai_actions":
         return <AIActionsSettings />;
       case "context_strategy":

@@ -164,9 +164,19 @@ impl LLMProvider for AnthropicClient {
             if msg.role == "system" {
                 system_content = Some(msg.content.clone());
             } else {
+                let content = if msg.images.is_empty() {
+                    json!(msg.content)
+                } else {
+                    let mut blocks = vec![json!({ "type": "text", "text": msg.content })];
+                    blocks.extend(msg.images.iter().map(|image| json!({
+                        "type": "image",
+                        "source": { "type": "base64", "media_type": image.media_type, "data": image.data }
+                    })));
+                    json!(blocks)
+                };
                 api_messages.push(json!({
                     "role": msg.role,
-                    "content": msg.content
+                    "content": content
                 }));
             }
         }

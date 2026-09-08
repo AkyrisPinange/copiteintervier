@@ -52,6 +52,8 @@ const DEFAULT_HOTKEYS: HotkeyConfig = {
   mode_followup: "3",
   mode_recap: "4",
   mode_ask: "5",
+  capture_screenshot: "Mouse4",
+  send_screenshot_batch: "Ctrl+Enter",
 };
 
 // Singleton store instance, lazily initialized
@@ -86,6 +88,8 @@ interface ConfigState {
   sttLanguage: string;
   llmProvider: LLMProviderType;
   llmModel: string;
+  visionProvider: LLMProviderType;
+  visionModel: string;
 
   // Audio (legacy — kept for backward compat, new code uses meetingAudioConfig)
   micDeviceId: string | null;
@@ -188,6 +192,8 @@ interface ConfigState {
   setSTTLanguage: (language: string) => void;
   setLLMProvider: (provider: LLMProviderType) => void;
   setLLMModel: (model: string) => void;
+  setVisionProvider: (provider: LLMProviderType) => void;
+  setVisionModel: (model: string) => void;
   setMicDeviceId: (id: string | null) => void;
   setSystemDeviceId: (id: string | null) => void;
   setRecordingEnabled: (enabled: boolean) => void;
@@ -244,6 +250,8 @@ export const useConfigStore = create<ConfigState>((set) => ({
   sttLanguage: "en-US",
   llmProvider: "ollama",
   llmModel: "",
+  visionProvider: "gemini",
+  visionModel: "",
   micDeviceId: null,
   systemDeviceId: null,
   recordingEnabled: false,
@@ -336,6 +344,14 @@ export const useConfigStore = create<ConfigState>((set) => ({
   setLLMModel: (model) => {
     set({ llmModel: model });
     persistValue("llmModel", model);
+  },
+  setVisionProvider: (provider) => {
+    set({ visionProvider: provider });
+    persistValue("visionProvider", provider);
+  },
+  setVisionModel: (model) => {
+    set({ visionModel: model });
+    persistValue("visionModel", model);
   },
   setMicDeviceId: (id) => {
     set({ micDeviceId: id });
@@ -648,6 +664,8 @@ export const useConfigStore = create<ConfigState>((set) => ({
       const sttLanguage = await store.get<string>("sttLanguage");
       const llmProvider = await store.get<LLMProviderType>("llmProvider");
       const llmModel = await store.get<string>("llmModel");
+      const visionProvider = await store.get<LLMProviderType>("visionProvider");
+      const visionModel = await store.get<string>("visionModel");
       const micDeviceId = await store.get<string | null>("micDeviceId");
       const systemDeviceId = await store.get<string | null>("systemDeviceId");
       const recordingEnabled = await store.get<boolean>("recordingEnabled");
@@ -797,6 +815,8 @@ export const useConfigStore = create<ConfigState>((set) => ({
         ...(sttLanguage != null && { sttLanguage }),
         ...(llmProvider != null && { llmProvider }),
         ...(llmModel != null && { llmModel }),
+        visionProvider: visionProvider ?? "gemini",
+        visionModel: visionModel ?? "",
         ...(micDeviceId !== undefined && { micDeviceId }),
         ...(systemDeviceId !== undefined && { systemDeviceId }),
         ...(recordingEnabled != null && { recordingEnabled }),
@@ -808,7 +828,7 @@ export const useConfigStore = create<ConfigState>((set) => ({
         ...(startOnLogin != null && { startOnLogin }),
         ...(dataDirectory != null && { dataDirectory }),
         ...(firstRunCompleted != null && { firstRunCompleted }),
-        ...(hotkeys != null && { hotkeys }),
+        ...(hotkeys != null && { hotkeys: { ...DEFAULT_HOTKEYS, ...hotkeys } }),
         ...(activeWhisperModel !== undefined && { activeWhisperModel }),
         ...(activeModelPerEngine != null && { activeModelPerEngine }),
         ...(whisperDualPass != null && { whisperDualPass }),
@@ -889,6 +909,12 @@ export const useConfigStore = create<ConfigState>((set) => ({
       });
       store.onKeyChange<string>("llmModel", (val) => {
         if (val != null) set({ llmModel: val });
+      });
+      store.onKeyChange<LLMProviderType>("visionProvider", (val) => {
+        if (val != null) set({ visionProvider: val });
+      });
+      store.onKeyChange<string>("visionModel", (val) => {
+        if (val != null) set({ visionModel: val });
       });
       store.onKeyChange<ContextStrategy>("contextStrategy", (val) => {
         if (val != null) set({ contextStrategy: val });

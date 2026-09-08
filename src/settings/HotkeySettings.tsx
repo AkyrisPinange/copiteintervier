@@ -17,6 +17,8 @@ const HOTKEY_LABELS: Record<keyof HotkeyConfig, string> = {
   mode_followup: "Mode: Follow-Up",
   mode_recap: "Mode: Recap",
   mode_ask: "Mode: Ask Question",
+  capture_screenshot: "Capture Screenshot",
+  send_screenshot_batch: "Send Screenshot Batch",
 };
 
 const DEFAULT_HOTKEYS: HotkeyConfig = {
@@ -31,6 +33,8 @@ const DEFAULT_HOTKEYS: HotkeyConfig = {
   mode_followup: "Ctrl+3",
   mode_recap: "Ctrl+4",
   mode_ask: "Ctrl+5",
+  capture_screenshot: "Mouse4",
+  send_screenshot_batch: "Ctrl+Enter",
 };
 
 /**

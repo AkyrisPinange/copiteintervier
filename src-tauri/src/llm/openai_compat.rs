@@ -139,9 +139,19 @@ impl LLMProvider for OpenAICompatClient {
         let msgs: Vec<serde_json::Value> = messages
             .iter()
             .map(|m| {
+                let content = if m.images.is_empty() {
+                    json!(m.content)
+                } else {
+                    let mut parts = vec![json!({ "type": "text", "text": m.content })];
+                    parts.extend(m.images.iter().map(|image| json!({
+                        "type": "image_url",
+                        "image_url": { "url": format!("data:{};base64,{}", image.media_type, image.data) }
+                    })));
+                    json!(parts)
+                };
                 json!({
                     "role": m.role,
-                    "content": m.content
+                    "content": content
                 })
             })
             .collect();

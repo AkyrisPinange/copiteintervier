@@ -492,6 +492,7 @@ async fn translate_via_llm(
     let messages = vec![crate::llm::provider::LLMMessage {
         role: "user".to_string(),
         content: prompt,
+        images: Vec::new(),
     }];
 
     let provider_arc = {

@@ -42,16 +42,24 @@ impl GeminiClient {
                     system_instruction = Some(msg.content.clone());
                 }
                 "assistant" => {
+                    let mut parts = vec![json!({"text": msg.content})];
+                    parts.extend(msg.images.iter().map(|image| json!({
+                        "inlineData": { "mimeType": image.media_type, "data": image.data }
+                    })));
                     contents.push(json!({
                         "role": "model",
-                        "parts": [{"text": msg.content}]
+                        "parts": parts
                     }));
                 }
                 _ => {
+                    let mut parts = vec![json!({"text": msg.content})];
+                    parts.extend(msg.images.iter().map(|image| json!({
+                        "inlineData": { "mimeType": image.media_type, "data": image.data }
+                    })));
                     // "user" or anything else maps to "user"
                     contents.push(json!({
                         "role": "user",
-                        "parts": [{"text": msg.content}]
+                        "parts": parts
                     }));
                 }
             }
