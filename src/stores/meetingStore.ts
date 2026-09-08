@@ -42,6 +42,7 @@ interface MeetingState {
 
   // Stealth mode (overlay hidden while recording)
   overlayHidden: boolean;
+  stealthEnabled: boolean;
 
   // Launcher detail view (past meeting selected for viewing)
   selectedMeetingId: string | null;
@@ -60,6 +61,8 @@ interface MeetingState {
   setAiScenario: (scenario: AIScenario) => void;
   setOverlayHidden: (hidden: boolean) => void;
   toggleOverlayHidden: () => void;
+  setStealthEnabled: (enabled: boolean) => void;
+  toggleStealthEnabled: () => void;
   setSelectedMeetingId: (id: string | null) => void;
 
   // Async flows
@@ -87,6 +90,7 @@ export const useMeetingStore = create<MeetingState>((set, get) => ({
   audioMode: "online",
   aiScenario: "team_meeting",
   overlayHidden: false,
+  stealthEnabled: true,
   selectedMeetingId: null,
 
   setCurrentView: (view) => {
@@ -116,6 +120,8 @@ export const useMeetingStore = create<MeetingState>((set, get) => ({
     const next = !useMeetingStore.getState().overlayHidden;
     set({ overlayHidden: next });
   },
+  setStealthEnabled: (enabled) => set({ stealthEnabled: enabled }),
+  toggleStealthEnabled: () => set((state) => ({ stealthEnabled: !state.stealthEnabled })),
   setSelectedMeetingId: (id) => set({ selectedMeetingId: id }),
 
   startMeetingFlow: async (title?: string, audioMode?: AudioMode, scenario?: AIScenario) => {

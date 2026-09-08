@@ -494,6 +494,15 @@ pub fn run() {
                 }
             }
 
+            // Stealth starts enabled: keep the overlay visible while excluding
+            // it from screen captures. The tray can disable it when needed.
+            let stealth_app = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                if let Err(error) = stealth_commands::set_stealth_mode(stealth_app, true).await {
+                    log::warn!("Failed to enable default stealth mode: {}", error);
+                }
+            });
+
             log::info!("NexQ initialized successfully");
             Ok(())
         })

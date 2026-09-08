@@ -5,7 +5,7 @@ use crate::llm::{LLMRouter, ProviderConfig};
 use crate::state::AppState;
 use base64::Engine;
 use std::sync::OnceLock;
-use tauri::{command, AppHandle, Emitter, State};
+use tauri::{command, AppHandle, Emitter, Manager, State};
 
 static MOUSE_APP: OnceLock<AppHandle> = OnceLock::new();
 
@@ -53,10 +53,10 @@ pub fn start_mouse_hook(app: AppHandle) {
     });
 }
 
-/// Captures the Windows virtual desktop as a PNG. The overlay is excluded by
-/// the existing display-affinity/stealth setting when enabled.
+/// Captures the Windows virtual desktop as a PNG. The overlay remains visible
+/// but is excluded by the default display-affinity/stealth setting.
 #[command]
-pub async fn capture_screen() -> Result<String, String> {
+pub async fn capture_screen(app: AppHandle) -> Result<String, String> {
     #[cfg(target_os = "windows")]
     {
         use image::{ImageBuffer, Rgba};
@@ -68,6 +68,18 @@ pub async fn capture_screen() -> Result<String, String> {
         };
 
         unsafe {
+            // Ensure the overlay is excluded even if its window was created
+            // after startup.
+            if let Some(overlay) = app.get_webview_window("overlay") {
+                use windows::Win32::UI::WindowsAndMessaging::{
+                    SetWindowDisplayAffinity, WINDOW_DISPLAY_AFFINITY,
+                };
+                if let Ok(hwnd_raw) = overlay.hwnd() {
+                    let hwnd = HWND(hwnd_raw.0 as *mut _);
+                    let _ = SetWindowDisplayAffinity(hwnd, WINDOW_DISPLAY_AFFINITY(0x00000011));
+                }
+            }
+
             let x = GetSystemMetrics(SM_XVIRTUALSCREEN);
             let y = GetSystemMetrics(SM_YVIRTUALSCREEN);
             let width = GetSystemMetrics(SM_CXVIRTUALSCREEN);
