@@ -6,12 +6,17 @@ import { Camera, RefreshCw } from "lucide-react";
 
 const PROVIDERS: Array<{ id: LLMProviderType; label: string }> = [
   { id: "openai", label: "OpenAI" }, { id: "anthropic", label: "Anthropic" },
+  { id: "groq", label: "Groq" },
   { id: "gemini", label: "Google Gemini" }, { id: "openrouter", label: "OpenRouter" },
   { id: "ollama", label: "Ollama" }, { id: "lm_studio", label: "LM Studio" },
 ];
 
 function visionModels(models: ModelInfo[]) {
-  return models.filter((m) => /vision|image|gpt-4o|gpt-4\.1|claude|gemini|llava|qwen2\.5-vl|qwen-vl|pixtral|ministral-3/i.test(`${m.id} ${m.name}`));
+  return models.filter((m) => {
+    const value = `${m.id} ${m.name}`;
+    if (/tts|transcribe|live|embedding|moderation|image|imagen|veo|audio/i.test(value)) return false;
+    return /vision|image|gpt-4o|gpt-4\.1|claude|gemini|llama-4|qwen3\.(6|vl)|llava|qwen2\.5-vl|qwen-vl|pixtral|ministral-3/i.test(value);
+  });
 }
 
 export function VisionSettings() {

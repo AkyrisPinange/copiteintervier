@@ -163,8 +163,9 @@ pub async fn analyze_screenshot_batch(
     if raw_images.is_empty() {
         return Err("No screenshots queued".to_string());
     }
-    if raw_images.len() > 8 {
-        return Err("A maximum of 8 screenshots can be sent at once".to_string());
+    let max_images = if vision_provider == "groq" { 5 } else { 8 };
+    if raw_images.len() > max_images {
+        return Err(format!("A maximum of {} screenshots can be sent at once for this provider", max_images));
     }
 
     let api_key = state
