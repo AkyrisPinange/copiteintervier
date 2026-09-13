@@ -56,7 +56,10 @@
     "active": true,
     "targets": ["nsis"],
     "createUpdaterArtifacts": true,
-    "icon": [],
+    "icon": [
+      "icons/generic.png",
+      "icons/generic.ico"
+    ],
     "windows": {
       "nsis": {
         "displayLanguageSelector": false,
