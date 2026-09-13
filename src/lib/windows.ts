@@ -10,6 +10,7 @@ export async function showLauncherWindow(): Promise<void> {
   const launcher = await WebviewWindow.getByLabel("launcher");
 
   if (launcher) {
+    await launcher.setSkipTaskbar(false).catch(() => {});
     await launcher.show().catch(() => {});
     await launcher.unminimize().catch(() => {});
     await launcher.setFocus().catch(() => {});
@@ -26,12 +27,14 @@ export async function showOverlayWindow(): Promise<void> {
   const overlay = await WebviewWindow.getByLabel("overlay");
 
   if (overlay) {
+    await overlay.setSkipTaskbar(true).catch(() => {});
     await overlay.show().catch(() => {});
     await overlay.unminimize().catch(() => {});
     await overlay.setFocus().catch(() => {});
   }
 
   if (current.label === "launcher") {
+    await current.setSkipTaskbar(true).catch(() => {});
     await current.hide().catch(() => {});
   }
 }
