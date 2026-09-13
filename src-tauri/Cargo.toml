@@ -1,12 +1,12 @@
 [package]
-name = "nexq"
+name = "runtime-host"
 version = "2.20.10"
 description = "AI Meeting Assistant & Real-Time Interview Copilot"
 authors = ["NexQ"]
 edition = "2021"
 
 [lib]
-name = "nexq_lib"
+name = "runtime_host_lib"
 crate-type = ["lib", "cdylib", "staticlib"]
 
 [build-dependencies]

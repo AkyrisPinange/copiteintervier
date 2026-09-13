@@ -59,7 +59,10 @@ pub fn start_mouse_hook(app: AppHandle) {
 pub async fn capture_screen(app: AppHandle) -> Result<String, String> {
     #[cfg(target_os = "windows")]
     {
-        use image::{ImageBuffer, Rgba};
+        use image::{
+            codecs::png::{CompressionType, FilterType, PngEncoder},
+            ExtendedColorType, ImageEncoder,
+        };
         use windows::Win32::Foundation::HWND;
         use windows::Win32::Graphics::Gdi::*;
         use windows::Win32::UI::WindowsAndMessaging::{
@@ -144,11 +147,14 @@ pub async fn capture_screen(app: AppHandle) -> Result<String, String> {
             for pixel in pixels.chunks_exact_mut(4) {
                 pixel.swap(0, 2);
             }
-            let image = ImageBuffer::<Rgba<u8>, _>::from_raw(width as u32, height as u32, pixels)
-                .ok_or_else(|| "Failed to create screenshot image".to_string())?;
             let mut png = std::io::Cursor::new(Vec::new());
-            image::DynamicImage::ImageRgba8(image)
-                .write_to(&mut png, image::ImageFormat::Png)
+            PngEncoder::new_with_quality(&mut png, CompressionType::Fast, FilterType::Sub)
+                .write_image(
+                    &pixels,
+                    width as u32,
+                    height as u32,
+                    ExtendedColorType::Rgba8,
+                )
                 .map_err(|e| format!("Failed to encode screenshot: {}", e))?;
             return Ok(base64::engine::general_purpose::STANDARD.encode(png.into_inner()));
         }

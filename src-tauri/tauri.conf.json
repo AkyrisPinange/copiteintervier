@@ -1,6 +1,6 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/schema.json",
-  "productName": "NexQ",
+  "productName": "Runtime Host",
   "version": "2.20.10",
   "identifier": "com.nexq.app",
   "build": {
