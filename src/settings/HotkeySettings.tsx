@@ -3,6 +3,7 @@ import { useConfigStore } from "../stores/configStore";
 import { showToast } from "../stores/toastStore";
 import type { HotkeyConfig } from "../lib/types";
 import { RotateCcw, Keyboard } from "lucide-react";
+import { listen } from "@tauri-apps/api/event";
 
 /** Display-friendly labels for each hotkey action */
 const HOTKEY_LABELS: Record<keyof HotkeyConfig, string> = {
@@ -106,8 +107,26 @@ export function HotkeySettings() {
     listenerRef.current = handler;
     window.addEventListener("keydown", handler, { capture: true });
 
+    let unlistenMouse: (() => void) | undefined;
+    listen<number>("nexq:mouse_button", (event) => {
+      const combo = `Mouse${event.payload}`;
+      const conflictingAction = (
+        Object.entries(hotkeys) as [keyof HotkeyConfig, string][]
+      ).find(([action, binding]) => binding === combo && action !== editingKey);
+
+      setConflict(
+        conflictingAction
+          ? `"${combo}" is already used by "${HOTKEY_LABELS[conflictingAction[0]]}"`
+          : null
+      );
+      setHotkeys({ ...hotkeys, [editingKey]: combo });
+      setEditingKey(null);
+      showToast(`Hotkey updated: ${HOTKEY_LABELS[editingKey]} = ${combo}`, "success");
+    }).then((fn) => { unlistenMouse = fn; });
+
     return () => {
       window.removeEventListener("keydown", handler, { capture: true });
+      unlistenMouse?.();
       listenerRef.current = null;
     };
   }, [editingKey, hotkeys, setHotkeys]);

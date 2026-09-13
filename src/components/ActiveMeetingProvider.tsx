@@ -50,8 +50,13 @@ function OverlayMeetingHooks() {
     }).then((fn) => { unlistenSend = fn; });
     let unlistenMouse: (() => void) | undefined;
     listen<number>("nexq:mouse_button", (event) => {
-      const configured = useConfigStore.getState().hotkeys.capture_screenshot;
-      if (configured === `Mouse${event.payload}`) useScreenshotStore.getState().capture().catch(() => {});
+      const hotkeys = useConfigStore.getState().hotkeys;
+      const configured = `Mouse${event.payload}`;
+      if (hotkeys.capture_screenshot === configured) {
+        useScreenshotStore.getState().capture().catch(() => {});
+      } else if (hotkeys.send_screenshot_batch === configured) {
+        useScreenshotStore.getState().send().catch(() => {});
+      }
     }).then((fn) => { unlistenMouse = fn; });
     return () => {
       unlistenCapture?.(); unlistenSend?.(); unlistenMouse?.();
