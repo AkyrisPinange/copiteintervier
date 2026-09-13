@@ -90,6 +90,7 @@ interface ConfigState {
   llmModel: string;
   visionProvider: LLMProviderType;
   visionModel: string;
+  visionTestMode: boolean;
 
   // Audio (legacy — kept for backward compat, new code uses meetingAudioConfig)
   micDeviceId: string | null;
@@ -194,6 +195,7 @@ interface ConfigState {
   setLLMModel: (model: string) => void;
   setVisionProvider: (provider: LLMProviderType) => void;
   setVisionModel: (model: string) => void;
+  setVisionTestMode: (enabled: boolean) => void;
   setMicDeviceId: (id: string | null) => void;
   setSystemDeviceId: (id: string | null) => void;
   setRecordingEnabled: (enabled: boolean) => void;
@@ -252,6 +254,7 @@ export const useConfigStore = create<ConfigState>((set) => ({
   llmModel: "",
   visionProvider: "gemini",
   visionModel: "",
+  visionTestMode: false,
   micDeviceId: null,
   systemDeviceId: null,
   recordingEnabled: false,
@@ -352,6 +355,10 @@ export const useConfigStore = create<ConfigState>((set) => ({
   setVisionModel: (model) => {
     set({ visionModel: model });
     persistValue("visionModel", model);
+  },
+  setVisionTestMode: (enabled) => {
+    set({ visionTestMode: enabled });
+    persistValue("visionTestMode", enabled);
   },
   setMicDeviceId: (id) => {
     set({ micDeviceId: id });
@@ -666,6 +673,7 @@ export const useConfigStore = create<ConfigState>((set) => ({
       const llmModel = await store.get<string>("llmModel");
       const visionProvider = await store.get<LLMProviderType>("visionProvider");
       const visionModel = await store.get<string>("visionModel");
+      const visionTestMode = await store.get<boolean>("visionTestMode");
       const micDeviceId = await store.get<string | null>("micDeviceId");
       const systemDeviceId = await store.get<string | null>("systemDeviceId");
       const recordingEnabled = await store.get<boolean>("recordingEnabled");
@@ -817,6 +825,7 @@ export const useConfigStore = create<ConfigState>((set) => ({
         ...(llmModel != null && { llmModel }),
         visionProvider: visionProvider ?? "gemini",
         visionModel: visionModel ?? "",
+        visionTestMode: visionTestMode ?? false,
         ...(micDeviceId !== undefined && { micDeviceId }),
         ...(systemDeviceId !== undefined && { systemDeviceId }),
         ...(recordingEnabled != null && { recordingEnabled }),
@@ -915,6 +924,9 @@ export const useConfigStore = create<ConfigState>((set) => ({
       });
       store.onKeyChange<string>("visionModel", (val) => {
         if (val != null) set({ visionModel: val });
+      });
+      store.onKeyChange<boolean>("visionTestMode", (val) => {
+        if (val != null) set({ visionTestMode: val });
       });
       store.onKeyChange<ContextStrategy>("contextStrategy", (val) => {
         if (val != null) set({ contextStrategy: val });

@@ -22,8 +22,10 @@ function visionModels(models: ModelInfo[]) {
 export function VisionSettings() {
   const selectedProvider = useConfigStore((s) => s.visionProvider);
   const selectedModel = useConfigStore((s) => s.visionModel);
+  const visionTestMode = useConfigStore((s) => s.visionTestMode);
   const setProvider = useConfigStore((s) => s.setVisionProvider);
   const setModel = useConfigStore((s) => s.setVisionModel);
+  const setVisionTestMode = useConfigStore((s) => s.setVisionTestMode);
   const [models, setModels] = useState<ModelInfo[]>([]);
   const [openRouterModels, setOpenRouterModels] = useState<OpenRouterModel[]>([]);
   const [apiKey, setApiKey] = useState("");
@@ -67,5 +69,9 @@ export function VisionSettings() {
       <select value={selectedModel} onChange={(e) => selectModel(e.target.value)} className="w-full rounded-lg border border-border/50 bg-background px-3 py-2.5 text-sm"><option value="">Select a vision model...</option>{modelOptions.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select>
       <p className="mt-2 text-xs text-muted-foreground">Load models to show only candidates with image support.</p>
     </div>
+    <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border/30 bg-card/50 p-5">
+      <input type="checkbox" checked={visionTestMode} onChange={(e) => setVisionTestMode(e.target.checked)} className="mt-0.5 h-4 w-4 accent-primary" />
+      <span><span className="block text-sm font-medium">Vision Test Mode</span><span className="mt-1 block text-xs text-muted-foreground">Analyze only the screenshots. Do not send interview transcript or context.</span></span>
+    </label>
   </div>;
 }

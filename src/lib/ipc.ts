@@ -214,12 +214,14 @@ export async function analyzeScreenshotBatch(
   transcriptSegments: string,
   visionProvider: string,
   visionModel: string,
+  visionTestMode: boolean,
 ): Promise<void> {
   return invoke("analyze_screenshot_batch", {
     images: JSON.stringify(images),
     transcript: transcriptSegments,
     visionProvider,
     visionModel,
+    visionTestMode,
   });
 }
 

@@ -170,6 +170,7 @@ pub async fn analyze_screenshot_batch(
     transcript: String,
     vision_provider: String,
     vision_model: String,
+    vision_test_mode: bool,
     app_handle: AppHandle,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
@@ -207,10 +208,14 @@ pub async fn analyze_screenshot_batch(
         .map_err(|e| format!("Vision provider unavailable: {}", e))?;
     router.set_active_model(vision_model.clone());
     let provider = router.get_provider().map_err(|e| e.to_string())?;
-    let prompt = format!(
-        "Analyze these screenshots in the context of a live technical interview. Explain the relevant code, UI, error, or problem visible in the images and suggest a concise, technically accurate response for the interview.\n\nRecent interview transcript:\n{}",
-        if transcript.trim().is_empty() { "(no transcript available)" } else { &transcript }
-    );
+    let prompt = if vision_test_mode {
+        "Analyze only the visual content in these screenshots. Identify and answer visible questions, explain visible code, and solve visible errors or problems. Do not use interview context, transcript, scenario, or unstated assumptions. Return a concise, technically accurate answer based only on the images.".to_string()
+    } else {
+        format!(
+            "Analyze these screenshots in the context of a live technical interview. Explain the relevant code, UI, error, or problem visible in the images and suggest a concise, technically accurate response for the interview.\n\nRecent interview transcript:\n{}",
+            if transcript.trim().is_empty() { "(no transcript available)" } else { &transcript }
+        )
+    };
     let _ = app_handle.emit(
         "llm_stream_start",
         StreamStartPayload {
@@ -219,9 +224,9 @@ pub async fn analyze_screenshot_batch(
             provider: vision_provider,
             system_prompt: "You are a real-time technical interview vision copilot.".to_string(),
             user_prompt: prompt.clone(),
-            include_transcript: true,
+            include_transcript: !vision_test_mode,
             include_rag: false,
-            include_instructions: true,
+            include_instructions: !vision_test_mode,
             include_question: false,
             temperature: 0.2,
             rag_query: None,

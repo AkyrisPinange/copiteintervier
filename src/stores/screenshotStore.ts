@@ -53,12 +53,14 @@ export const useScreenshotStore = create<ScreenshotState>((set, get) => ({
     if (!config.visionModel) throw new Error("Select a vision model in Settings");
     set({ isSending: true, error: null });
     try {
-      const context = await getAssembledContext().catch(() => "");
-      const transcript = [recentTranscript(), context ? `Reference context:\n${context}` : ""]
-        .filter(Boolean).join("\n\n");
+      const context = config.visionTestMode ? "" : await getAssembledContext().catch(() => "");
+      const transcript = config.visionTestMode
+        ? ""
+        : [recentTranscript(), context ? `Reference context:\n${context}` : ""]
+          .filter(Boolean).join("\n\n");
       await analyzeScreenshotBatch(
         state.images.map((image) => ({ media_type: "image/png", data: image.data })),
-        transcript, config.visionProvider, config.visionModel,
+        transcript, config.visionProvider, config.visionModel, config.visionTestMode,
       );
       set({ images: [] });
     } catch (error) {
